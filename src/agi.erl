@@ -1,5 +1,5 @@
 %%% ----------------------------------------------------------------------------
-%%% @author Oscar Hellström <oscar@erlang-consulting.com>
+%%% @author Oscar HellstrÃ¶m <oscar@erlang-consulting.com>
 %%%
 %%% @version 0.3, 2006-08-10
 %%% @copyright 2006 Erlang Training and Consulting
@@ -1330,8 +1330,10 @@ split_return_string(String) ->
 %% @end
 %% -----------------------------------------------------------------------------
 extract_result(String) ->
-	{match, 1, Len} = regexp:first_match(String, "^(-)?[0-9]+"),
-	[string:substr(String, 1, Len)].
+        io:format("extract_result: ~p\n",[String]),
+	%%{match, 1, Len} = regexp:first_match(String,  "^(-)?[0-9]+"),
+	{match,[{Offset,Len}|_Rest]} = re:run(String,"^(-)?[0-9]+"),
+	[string:substr(String, Offset+1, Len)].
 
 %% -----------------------------------------------------------------------------
 %% @spec extract_value(String::string(), Acc::list()) -> list()
@@ -1341,8 +1343,10 @@ extract_result(String) ->
 %% @end
 %% -----------------------------------------------------------------------------
 extract_value(String, Acc) ->
-	case regexp:first_match(String, "\\(.+\\)") of
-		{match, Start, Len} ->
+%%%	case regexp:first_match(String, "\\(.+\\)") of
+    io:format("extract_value: ~p\n",[String]),
+        case re:run(String, "\\(.+\\)") of
+		{match, [{Start, Len}|_Rest]} ->
 			[string:substr(String, Start + 1, Len - 2)|Acc];
 		nomatch ->
 			Acc
@@ -1355,9 +1359,10 @@ extract_value(String, Acc) ->
 %% @end
 %% -----------------------------------------------------------------------------
 extract_endpos(String, Acc) ->
-	case regexp:first_match(String, "endpos=[0-9]+") of 
-		{match, Start, Len} ->
-			[string:substr(String, Start + 7, Len - 7)|Acc];
+%%	case regexp:first_match(String, "endpos=[0-9]+") of
+        case re:run(String, "endpos=[0-9]+") of
+		{match, [{Start, Len}|_Rest]} ->
+			[string:substr(String, Start + 8, Len - 7)|Acc];
 		nomatch ->
 			Acc
 	end.
@@ -1391,9 +1396,10 @@ integer_or_error(Return) ->
 	end.
 
 int_and_endpoint_or_error(Return) ->
+	%%%io:format("debug return is ~p\n",[Return]),
 	case Return of
 		{ok, {Value, Endpoint}} ->
-			{ok, {list_to_integer(Value), list_to_integer(Endpoint)}};
+	{ok, {list_to_integer(Value), list_to_integer(Endpoint)}};
 		Else ->
 			Else
 	end.
@@ -1407,7 +1413,8 @@ int_and_atom_or_error(Return) ->
 	end.
 
 int_and_string_or_error(Return) ->
-	case Return of
+    
+    case Return of
 		{ok, {Value, Atom}} ->
 			{ok, {list_to_integer(Value), Atom}};
 		Else ->

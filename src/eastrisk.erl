@@ -1,6 +1,5 @@
 %%% ----------------------------------------------------------------------------
 %%% @private
-%%% @author Oscar Hellström <oscar@erlang-consulting.com>
 %%% @copyright 2006 Erlang Training and Consulting
 %%% @doc
 %%% The Eastrisk application.
@@ -15,7 +14,14 @@
 %% @hidden
 %% -----------------------------------------------------------------------------
 start(_Type, _Args) ->
-	eastrisk_sup:start_link().
+	{ok,Pid}=eastrisk_sup:start_link(),
+	inets:start(),
+	ast_manager_zap:init(),
+	{ok,Pid}.
+  
+
+start()->
+     application:start(eastrisk).
 
 %% -----------------------------------------------------------------------------
 %% @hidden
