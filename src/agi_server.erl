@@ -1,3 +1,4 @@
+%% coding: latin-1
 %%% ----------------------------------------------------------------------------
 %%% @private
 %%% @author Oscar Hellström <oscar@erlang-consulting.com>
@@ -61,7 +62,7 @@
 %% @end
 %% -----------------------------------------------------------------------------
 start_link(Port, Debug) ->
-	proc_lib:start_link(?MODULE, init, [self(), Port, Debug]).
+    proc_lib:start_link(?MODULE, init, [self(), Port, Debug]).
 
 %% -----------------------------------------------------------------------------
 %% @spec stop() -> ok
@@ -70,7 +71,7 @@ start_link(Port, Debug) ->
 %% @end
 %% -----------------------------------------------------------------------------
 stop() ->
-	?MODULE ! stop.
+    ?MODULE ! stop.
 
 %%% ----------------------------------------------------------------------------
 %%%                         proc_lib functions
@@ -84,36 +85,41 @@ stop() ->
 %% @end
 %% -----------------------------------------------------------------------------
 init(Parent, Port, DebugOpts) ->
-	{ok, Socket} = gen_tcp:listen(Port, [
-		binary,
-		{packet, line},
-		{active, false}
-	]),
-	Debug = sys:debug_options(DebugOpts),
-	register(?MODULE, self()),
-	proc_lib:init_ack(Parent, {ok, self()}),
-	loop(Parent, Debug, #state{socket = Socket}).
+    BindAddr = case application:get_env(eastrisk,bind_addr) of
+		   {ok,Addr} -> Addr;
+		   _ -> {127,0,0,1}
+	       end,
+    {ok, Socket} = gen_tcp:listen(Port, [
+					 {ip,BindAddr},
+					 binary,
+					 {packet, line},
+					 {active, false}
+					]),
+    Debug = sys:debug_options(DebugOpts),
+    register(?MODULE, self()),
+    proc_lib:init_ack(Parent, {ok, self()}),
+    loop(Parent, Debug, #state{socket = Socket}).
 
 %% -----------------------------------------------------------------------------
 %% @hidden
 %% See sys:handle_system_msg
 %% -----------------------------------------------------------------------------
 system_continue(Parent, Debug, State) ->
-	loop(Parent, Debug, State).
+    loop(Parent, Debug, State).
 
 %% -----------------------------------------------------------------------------
 %% @hidden
 %% See sys:handle_system_msg
 %% -----------------------------------------------------------------------------
 system_terminate(Reason, _Parent, _Debug, _State) ->
-	exit(Reason).
+    exit(Reason).
 
 %% -----------------------------------------------------------------------------
 %% @hidden
 %% See sys:handle_system_msg
 %% -----------------------------------------------------------------------------
 system_code_change(State, _Module, _OldVsn, _State) ->
-	{ok, State}.
+    {ok, State}.
 
 %% -----------------------------------------------------------------------------
 %%                         Internal functions
@@ -126,24 +132,24 @@ system_code_change(State, _Module, _OldVsn, _State) ->
 %% connection.
 %% -----------------------------------------------------------------------------
 loop(Parent, Debug, State) ->
-	receive
-		{system, From, Request} ->
-			sys:handle_system_msg(Request, From, Parent, ?MODULE, Debug, State);
-		stop ->
-			gen_tcp:close(State#state.socket)
-	after
-		0 ->
-			case gen_tcp:accept(State#state.socket, 100) of
-				{ok, Socket} ->
-					start_channel(Socket), 
-					loop(Parent, Debug, State);
-				{error, timeout} ->
-					loop(Parent, Debug, State);
-				{error, Reason} ->
-					gen_tcp:close(State#state.socket),
-					exit(Reason)
-			end
-	end.
+    receive
+	{system, From, Request} ->
+	    sys:handle_system_msg(Request, From, Parent, ?MODULE, Debug, State);
+	stop ->
+	    gen_tcp:close(State#state.socket)
+    after
+	0 ->
+	    case gen_tcp:accept(State#state.socket, 100) of
+		{ok, Socket} ->
+		    start_channel(Socket), 
+		    loop(Parent, Debug, State);
+		{error, timeout} ->
+		    loop(Parent, Debug, State);
+		{error, Reason} ->
+		    gen_tcp:close(State#state.socket),
+		    exit(Reason)
+	    end
+    end.
 
 start_channel(Socket) ->
-	agi_channel_sup:start_channel(Socket).
+    agi_channel_sup:start_channel(Socket).

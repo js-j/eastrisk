@@ -1298,6 +1298,9 @@ return_code(<<"200", _Value/binary>>) ->
 	200;
 return_code(<<"510", _Value/binary>>) ->
 	510.
+%return_code(_) ->
+%	unknown.
+
 
 %% Extracts a return value from an Asterisk AGI response
 %% Usually returns an integer, but if the AGI commands returns a value in
