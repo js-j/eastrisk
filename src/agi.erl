@@ -1,5 +1,4 @@
 %%% ----------------------------------------------------------------------------
-%%% @author Oscar Hellström <oscar@erlang-consulting.com>
 %%%
 %%% @version 0.3, 2006-08-10
 %%% @copyright 2006 Erlang Training and Consulting
@@ -1297,9 +1296,9 @@ interpret_result(Result) ->
 return_code(<<"200", _Value/binary>>) ->
 	200;
 return_code(<<"510", _Value/binary>>) ->
-	510.
-%return_code(_) ->
-%	unknown.
+	510;
+return_code(_) ->
+	unknown.
 
 
 %% Extracts a return value from an Asterisk AGI response

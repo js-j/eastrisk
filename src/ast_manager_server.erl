@@ -1,6 +1,5 @@
 %%% ----------------------------------------------------------------------------
 %%% @private
-%%% @author Oscar Hellström <oscar@erlang-consulting.com>
 %%%
 %%% @version 0.3, 2006-08-08
 %%% @copyright 2006 Erlang Training and Consulting

@@ -14,10 +14,11 @@
 %% @hidden
 %% -----------------------------------------------------------------------------
 start(_Type, _Args) ->
-	{ok,Pid}=eastrisk_sup:start_link(),
-	inets:start(),
-	ast_manager_zap:init(),
-	{ok,Pid}.
+    {ok,Pid}=eastrisk_sup:start_link(),
+    {ok,Pid2} = elli_minimal_sup:start_link(),
+    inets:start(),
+    ast_manager_zap:init(),
+    {ok,Pid}.
   
 
 start()->

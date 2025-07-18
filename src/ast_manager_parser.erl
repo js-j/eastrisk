@@ -1,5 +1,4 @@
 %%% ----------------------------------------------------------------------------
-%%% @author Oscar Hellström <oscar@erlang-consulting.com>
 %%% @private
 %%% @version 0.3, 2007-05-16
 %%% @copyright 2006 Erlang Training and Consulting
@@ -213,11 +212,15 @@ db_response([], Acc) ->
 unknown_event([<<"ActionID: ", ActionID/binary>>|T], Acc, _) ->
 	unknown_event(T, Acc, binary_to_integer(ActionID));
 unknown_event([Binary|T], Acc, ActionID) ->
-	String = binary_to_list(Binary),
-	{match, Start, Len} = regexp:first_match(String, "[A-Za-z]+: "),
-	Name = list_to_atom(string:substr(String, Start, Len - 2)),
-	Value = string:substr(String, Start + Len),
-	unknown_event(T, [{Name, Value}|Acc], ActionID);
+    String = binary_to_list(Binary),
+    case re:run(String,"[A-Za-z]+: ") of
+	{match,[{Start,Len}|_]} -> 
+	    io:format("slen ~p ~p",[Start,Len]),
+	    Name = list_to_atom(string:substr(String, Start+1, Len - 1)),
+				   Value = string:substr(String, Start + Len+1),
+				   unknown_event(T, [{Name, Value}|Acc], ActionID);
+	nomatch -> nil
+    end;
 unknown_event([], Acc, ActionID) ->
 	{Acc, ActionID}.
 
