@@ -30,7 +30,7 @@ handle(Req, _Args) ->
 handle('GET',[<<"hello">>, <<"world">>], _Req) ->
     %% Reply with a normal response. 'ok' can be used instead of '200'
     %% to signal success.
-    ast_manager:originate("Local/9000@localinst", "viva-outbound", "0898877727", 1, 3000,
+    ast_manager:originate("Local/9000@localinst", "context-outbound", "012345667899", 1, 3000,
 			  "", 1, []),
     {ok, [], <<"Hello World! Yay!">>};
 
